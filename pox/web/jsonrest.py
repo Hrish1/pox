@@ -41,6 +41,41 @@ def get_controller_information():
 
 
 
+@app.route("/web/jsonrest/switch_stat")
+def get_swith_stats():
+	try:
+		data_body = []
+		openflow = core.components.get("openflow")
+		if openflow == None:
+			log.error("cannot find module pox.openflow")
+			return json.dumps(data_body)
+		connections = openflow._connections
+	
+		for key in connections.keys():
+			conn = connections.get(key)
+			dpid = dpidToStr(conn.dpid)
+			data = {
+				"dpid": dpid,
+				"uptime": conn.connect_time 
+				}
+			data_body.append(data)
+		return json.dumps(data_body)
+
+	except BaseException, e:
+        	log.error(e.message)
+        	dataArray = []
+        	return json.dumps(dataArray)
+
+
+
+def dpidToStr (dpid):
+    
+    dpidStr = pox.lib.util.dpidToStr(dpid)
+    dpidStr = dpidStr.replace("-", ":")
+    dpidStr = "00:00:" + dpidStr
+    return dpidStr
+
+
 
 def launch(host = None, port = None):
 	def run():
