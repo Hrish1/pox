@@ -67,6 +67,34 @@ def get_swith_stats():
         	return json.dumps(dataArray)
 
 
+@app.route("/web/jsonrest/links_interswitch")
+def get_link_stats():
+	"""
+	Launch the module pox.openflow.discovery	
+	
+	"""
+	try:	
+		data_body = []
+		of_disc = core.components.get("openflow_discovery")
+		if of_disc == None:
+			log.error("cannot find module pox.openflow.discovery")
+			return json.dumps(data_body)
+		links = of_disc.adjacency
+		for link in links.keys():
+			data =  {
+					"sourceDPID": dpidToStr(link.dpid1),
+					"sourcePORT": link.port1,
+					"destDPID": dpidToStr(link.dpid2),
+					"destPORT": link.port2 
+				}
+			data_body.append(data)
+		return json.dumps(data_body)
+	
+	except BaseException, e:
+        	log.error(e.message)
+        	data_body = []
+        	return json.dumps(data_body)	
+
 
 def dpidToStr (dpid):
     
